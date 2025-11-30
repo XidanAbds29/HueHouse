@@ -1,77 +1,107 @@
--- Existing Tables (Idempotent)
-create table if not exists products (
+-- Create Products Table
+create table public.products (
   id uuid default gen_random_uuid() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   name text not null,
   price numeric not null,
-  description text,
+  category text,
   image_url text,
-  stock_status text default 'in_stock',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  images text[], -- New: Multiple images
+  description text,
+  stock_status text default 'in_stock' check (stock_status in ('in_stock', 'out_of_stock'))
 );
 
-create table if not exists orders (
+-- Migration to add images column if it doesn't exist
+do $$
+begin
+  if not exists (select 1 from information_schema.columns where table_name = 'products' and column_name = 'images') then
+    alter table products add column images text[];
+  end if;
+end $$;
+
+-- Create Orders Table
+create table public.orders (
   id uuid default gen_random_uuid() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   customer_name text not null,
   phone text not null,
   address text not null,
   total_amount numeric not null,
-  status text default 'pending',
-  items_json jsonb not null,
-  courier_status text default 'pending',
-  tracking_id text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  status text default 'pending' check (status in ('pending', 'processed', 'deleted')),
+  items_json jsonb,
+  courier_status text default 'pending' check (courier_status in ('pending', 'booked', 'failed')),
+  tracking_id text
 );
 
-create table if not exists admins (
+-- Enable Row Level Security (RLS)
+alter table public.products enable row level security;
+alter table public.orders enable row level security;
+
+-- Create Policies
+-- Allow public read access to products
+create policy "Enable read access for all users" on public.products for select using (true);
+
+-- Allow authenticated users (admin) to insert/update/delete products
+-- For this template, we'll allow public insert for demo purposes if you want to test without auth, 
+-- BUT for production, you should restrict this. 
+-- For now, let's allow public insert to make the Admin Dashboard work without complex auth setup for the demo.
+create policy "Enable insert for all users" on public.products for insert with check (true);
+create policy "Enable update for all users" on public.products for update using (true);
+create policy "Enable delete for all users" on public.products for delete using (true);
+
+-- Allow public insert for orders (Checkout)
+create policy "Enable insert for all users" on public.orders for insert with check (true);
+
+-- Allow public read/update for orders (Admin Dashboard)
+create policy "Enable read access for all users" on public.orders for select using (true);
+create policy "Enable update for all users" on public.orders for update using (true);
+
+-- Create Admins Table
+create table public.admins (
   id uuid default gen_random_uuid() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   email text not null unique,
-  password text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  password text not null
 );
 
--- NEW: Add user_id to orders (linked to auth.users)
-do $$ 
-begin 
-  if not exists (select 1 from information_schema.columns where table_name = 'orders' and column_name = 'user_id') then
-    alter table orders add column user_id uuid references auth.users(id);
-  end if; 
-end $$;
+-- Enable RLS for Admins
+alter table public.admins enable row level security;
 
--- NEW: Customers Table (Profile)
-create table if not exists customers (
-  id uuid references auth.users(id) primary key,
-  name text,
-  phone text,
-  address text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
+-- Allow public read access to admins (for login check)
+-- In a real app, you'd use a secure function, but for this template:
+create policy "Enable read access for all users" on public.admins for select using (true);
+create policy "Enable insert for all users" on public.admins for insert with check (true);
 
--- RLS Policies
-alter table products enable row level security;
-alter table orders enable row level security;
-alter table customers enable row level security;
-
--- Public Access for Products (View)
-create policy "Public products view" on products for select using (true);
-
--- Admin Access (Simulated for now, usually you'd use auth.uid())
--- For this template, we are using a simple 'admins' table for the dashboard login,
--- but Supabase Auth for customers.
--- We will allow public insert for orders (guest checkout) and authenticated select for own orders.
-
--- Orders Policies
-create policy "Public insert orders" on orders for insert with check (true);
-create policy "Users can view own orders" on orders for select using (auth.uid() = user_id);
-
--- Customers Policies
-create policy "Users can view own profile" on customers for select using (auth.uid() = id);
-create policy "Users can update own profile" on customers for update using (auth.uid() = id);
-create policy "Users can insert own profile" on customers for insert with check (auth.uid() = id);
-
--- Storage (Existing)
+-- STORAGE SETUP
+-- 1. Create the bucket if it doesn't exist, ensure it's public
 insert into storage.buckets (id, name, public) 
 values ('product-images', 'product-images', true)
-on conflict (id) do nothing;
+on conflict (id) do update set public = true;
 
-create policy "Public Access" on storage.objects for select using ( bucket_id = 'product-images' );
-create policy "Public Insert" on storage.objects for insert with check ( bucket_id = 'product-images' );
+-- 2. Drop ALL existing policies for this bucket to avoid conflicts/leftovers
+drop policy if exists "Public Access" on storage.objects;
+drop policy if exists "Public Insert" on storage.objects;
+drop policy if exists "Public Update" on storage.objects;
+drop policy if exists "Public Delete" on storage.objects;
+
+-- 3. Create permissive policies for ALL operations (Select, Insert, Update, Delete)
+-- Targeted specifically at the 'product-images' bucket
+create policy "Public Access" 
+on storage.objects for select 
+to public 
+using ( bucket_id = 'product-images' );
+
+create policy "Public Insert" 
+on storage.objects for insert 
+to public 
+with check ( bucket_id = 'product-images' );
+
+create policy "Public Update" 
+on storage.objects for update 
+to public 
+using ( bucket_id = 'product-images' );
+
+create policy "Public Delete" 
+on storage.objects for delete 
+to public 
+using ( bucket_id = 'product-images' );

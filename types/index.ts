@@ -4,6 +4,7 @@ export interface Product {
   price: number;
   category: string;
   image_url: string;
+  images?: string[]; // Optional for backward compatibility
   description: string;
   stock_status: 'in_stock' | 'out_of_stock';
 }

@@ -1,26 +1,52 @@
+/* Import Playfair Display for the Artsy Vibe */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
 
+@theme {
+  /* 
+     HIJACKING INDIGO PALETTE 
+     Since the app uses 'bg-indigo-600' etc., we override the 'indigo' colors 
+     to match the client's Saddle Brown (#8B4513) theme without touching TSX.
+  */
+  --color-indigo-50: #f9f5f0;
+  --color-indigo-100: #f0e6da;
+  --color-indigo-200: #dfccb6;
+  --color-indigo-300: #cbb08e;
+  --color-indigo-400: #b59068;
+  --color-indigo-500: #9f7445;
+  --color-indigo-600: #8b4513;
+  /* Primary Brand Color */
+  --color-indigo-700: #713810;
+  --color-indigo-800: #5c2e10;
+  --color-indigo-900: #4d2710;
+  --color-indigo-950: #2b1406;
+
+  /* Override Default Font */
+  --font-sans: "Playfair Display", serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fdfbf7;
+  /* Warm White / Cream */
+  --foreground: #2a2a2a;
+  /* Soft Black */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Removed Dark Mode to enforce "Light & Pretty" aesthetic */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* Subtle Grain for Tactile Feel */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* 3D Text Effect */
+.text-3d {
+  text-shadow:
+    1px 1px 0px #d1d1d1,
+    2px 2px 0px #c9c9c9,
+    3px 3px 0px #bfbfbf;
 }
