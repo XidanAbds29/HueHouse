@@ -57,11 +57,12 @@ export function Navbar() {
                         {/* Cart Action */}
                         <button
                             onClick={() => setIsCheckoutOpen(true)}
-                            className="relative p-2 text-stone-800 hover:bg-white rounded-full transition-all active:scale-95 group"
+                            className="relative flex items-center gap-2 bg-stone-900 text-white px-5 py-2.5 rounded-full hover:bg-stone-800 transition-all active:scale-95 shadow-md hover:shadow-lg"
                         >
-                            <ShoppingCart className="w-5 h-5 group-hover:text-indigo-600 transition-colors" />
+                            <ShoppingCart className="w-4 h-4" />
+                            <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">Cart</span>
                             {cart.length > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-stone-900 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">
+                                <span className="ml-1 bg-white text-stone-900 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
                                     {cart.length}
                                 </span>
                             )}

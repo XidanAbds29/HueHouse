@@ -273,7 +273,7 @@ ${cart.map(item => `- ${item.name}`).join('\n')}`;
                                     Payment
                                 </h3>
                                 <div className="bg-pink-50 border border-pink-100 p-4 rounded-xl text-sm text-pink-800 mb-5 font-medium">
-                                    Send Money to <strong className="text-lg ml-1">017XXXXXXXX</strong>
+                                    Send Money to <strong className="text-lg ml-1">01864509944</strong>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <input

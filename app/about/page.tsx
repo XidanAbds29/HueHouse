@@ -49,24 +49,16 @@ export default function AboutPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.6, duration: 0.8 }}
-                        className="mt-16 pt-16 border-t border-stone-200/60 flex flex-col md:flex-row justify-between gap-8"
+                        className="mt-16 pt-16 border-t border-stone-200/60 flex flex-col md:flex-row justify-center gap-12 md:gap-24"
                     >
-                        <div>
-                            <h2 className="text-2xl font-serif font-bold mb-4 text-stone-900">Visit Us</h2>
-                            <p className="text-stone-500 leading-relaxed">
-                                House 12, Road 5<br />
-                                Dhanmondi, Dhaka<br />
-                                Bangladesh
-                            </p>
-                        </div>
-                        <div>
+                        <div className="text-center md:text-left">
                             <h2 className="text-2xl font-serif font-bold mb-4 text-stone-900">Contact</h2>
                             <p className="text-stone-500 leading-relaxed">
-                                hello@huehouse.com<br />
-                                +880 1700 000000
+                                huehouse503@gmail.com<br />
+                                01864509944
                             </p>
                         </div>
-                        <div>
+                        <div className="text-center md:text-left">
                             <h2 className="text-2xl font-serif font-bold mb-4 text-stone-900">Hours</h2>
                             <p className="text-stone-500 leading-relaxed">
                                 Open Daily<br />
