@@ -14,8 +14,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "HueHouse",
-  description: "Artistic paintings and gallery.",
+  title: "HueHouse - Premium Art Store",
+  description: "Discover exclusive, premium art pieces at HueHouse. Elevate your space with our curated collection of artistic paintings and gallery-quality works.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 import { FacebookPixel } from "@/components/FacebookPixel";
